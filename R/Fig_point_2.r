@@ -74,5 +74,3 @@ dev.off()
 #(g0|g1|g2)
 #grid::grid.draw(grid::textGrob('Day in the breading season\n ', y = 0.055, x = 0.6, gp = gpar(fontsize =7)))
 #dev.off()
-
-

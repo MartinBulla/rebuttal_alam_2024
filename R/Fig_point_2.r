@@ -22,17 +22,17 @@ d[, long_vs_baseline:=(trial-(pre+post)/2)/100]
 
 g1=
 ggplot(d, aes(x = path_delta, y = long_vs_baseline)) + 
-    geom_point(aes(fill = side_bias, shape = song_pair), data = d) +
+    geom_point(aes(fill = side_bias, shape = song_pair), data = d, cex = 2) +
     stat_poly_line(se = FALSE, col = col_l) +
     annotate("text", x = 15, y = 0, label = "pair 1", size =3) + 
     annotate("text", x = 30.29, y = 0, label = "pair 2", size =3) + 
     annotate("text", x = 5.72, y = 0, label = "pair 3", size =3) + 
 
-    annotate("text", x = 10, y = 0.5, label = "Long-path song played in:", size =2.5, hjust = 0) + 
-    annotate("text", x = 13, y = 0.475, label = "preffered arm", size =2.5, col = col_[2], hjust = 0) + 
-    annotate("text", x = 13, y = 0.45, label = "non-preffered arm", size =2.5, col = col_[1], hjust = 0) + 
+    annotate("text", x = 10, y = 0.525, label = "Long-path song played in:", size =2.75, hjust = 0) + 
+    annotate("text", x = 13, y = 0.49, label = "preffered arm", size =2.75, col = col_[2], hjust = 0) + 
+    annotate("text", x = 13, y = 0.455, label = "non-preffered arm", size =2.75, col = col_[1], hjust = 0) + 
 
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 30, hjust = 0.5, cex = 3) + theme_bw() + 
+    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = .58,hjust = 0.5, vjust = 0, cex = 3) + theme_bw() + 
     coord_cartesian(xlim = c(0, 35), ylim = c(0, .58)) +
     scale_x_continuous(breaks = seq(0,30, by=10), expand = c(0,0))+
     #scale_y_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))
@@ -46,13 +46,13 @@ ggplot(d, aes(x = path_delta, y = long_vs_baseline)) +
 g2=
 ggplot(d, aes(x = path_delta, y = time_in_long)) + 
     geom_hline(yintercept=0.5, linetype='dotted', col = 'grey')+
-    geom_point(aes(fill = side_bias, shape = song_pair), data = d) +
+    geom_point(aes(fill = side_bias, shape = song_pair), data = d, cex = 2) +
     stat_poly_line(se = FALSE, col = col_l) +
-    annotate("text", x = 15, y = 0.3, label = "pair 1", size =3) + 
-    annotate("text", x = 30.29, y = 0.3, label = "pair 2", size =3) + 
-    annotate("text", x = 5.72, y = 0.3, label = "pair 3", size =3) + 
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 30, hjust = 0.5, cex = 3) + theme_bw() + 
-    coord_cartesian(xlim = c(0, 35), ylim = c(0.3, 1)) +
+    annotate("text", x = 15, y = 0.25, label = "pair 1", size =3) + 
+    annotate("text", x = 30.29, y = 0.25, label = "pair 2", size =3) + 
+    annotate("text", x = 5.72, y = 0.25, label = "pair 3", size =3) + 
+    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = 1, hjust = 0.5, vjust = 0, cex = 3) + theme_bw() + 
+    coord_cartesian(xlim = c(0, 35), ylim = c(0.25, 1)) +
     scale_x_continuous(breaks = seq(0,30, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(0.4,1, by=0.1))+
     #scale_y_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))
@@ -63,7 +63,7 @@ ggplot(d, aes(x = path_delta, y = time_in_long)) +
     theme_bw()
 
 
-png(here::here("Output/Fig_point_2_v2.png"),  width = 16, height = 8, unit = "cm", res = 600)
+png(here::here("Output/Fig_point_2_v3.png"),  width = 16, height = 8, unit = "cm", res = 600)
 
 g1+xlab('')|g2+xlab('');grid::grid.draw(grid::textGrob('Path-length difference of a stimulus pair', y = 0.055, x = 0.55, gp = gpar(fontsize =12)))#
 

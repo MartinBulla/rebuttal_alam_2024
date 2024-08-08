@@ -1,3 +1,7 @@
+# =============================================================
+# ❗ The script runs relative to the project's root directory,
+#  requires "Fig_4c.csv" and generates Fig. 1
+# =============================================================
 
 # tools
 require(data.table)

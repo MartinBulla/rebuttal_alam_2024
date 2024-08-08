@@ -1,33 +1,24 @@
+
+# tools
 require(data.table)
 require(ggplot2)
-library(ggpmisc)
-library(ggpubr)
-library(patchwork)
+require(ggpmisc)
+require(ggpubr)
+require(patchwork)
 
 set.seed(5)
-
-
-# random data
-d = data.table(
-maja = c(9,4,8,2,11,30,21,3,8,7),
-bara = c(21,25, 7, 18, 28, 13, 15, 6, 3, 17)
-)
-
-d = data.table(
-maja = sample(1:100, 1000, replace = TRUE),
-bara = sample(1:100, 1000, replace = TRUE)
-)
-
-d = data.table(
-x = rnorm(1000, mean = 37.5, sd = 4),
-y = rnorm(1000, mean = 37.5, sd = 4)
-)
 
 g_r_x = 35
 col_p = 'darkgrey'
 col_R = 'red'
 col_l = 'red'
 per_ = 0.05
+
+# top panels - random data
+d = data.table(
+x = rnorm(1000, mean = 37.5, sd = 4),
+y = rnorm(1000, mean = 37.5, sd = 4)
+)
 
 g1=
 ggplot(d, aes(x = x, y = y)) + 
@@ -58,11 +49,11 @@ ggplot(d, aes(x = x, y = y+x)) +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(55,95, by=10), labels =seq(55,95, by=10),expand = c(0,0))
 
-g1|g2|g3
+    #g1|g2|g3
 
-ggsave(here::here('Output/Fig_1.png'), g1|g2|g3, width = 12*2, height = 4*2, units = 'cm')
+    #ggsave(here::here('Output/Fig_1.png'), g1|g2|g3, width = 12*2, height = 4*2, units = 'cm')
 
-# paper data
+# bottom panels - Alam et al's data
 dd = fread('Data/Fig_4c.csv')
 dd$tutor_path = dd$tutor_parth
 dd[, pupil_path_full:=tutor_path+pupil_path]
@@ -71,7 +62,7 @@ dd[, tutor_minus_pupil:=pupil_path]
 gg1=
 ggplot(dd, aes(x =tutor_path, y = pupil_path_full)) + 
     geom_point(col = col_p) +
-    annotate("text", x=g_r_x, y=52-(52-20)*per_*3, label= "Color indicates a tutor", cex = 2.5, hjust = 0.5)+ 
+    annotate("text", x=g_r_x, y=52-(52-20)*per_*3, label= "Color indicates a tutor", cex = 2.75, hjust = 0.5)+ 
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 52-(52-20)*per_, hjust = 0.5, cex = 3)+ 
     coord_cartesian(xlim = c(20, 50), ylim = c(20, 52)) +
@@ -106,9 +97,9 @@ ggplot(dd, aes(x =tutor_path, y = tutor_path+pupil_path_full)) +
     geom_point(aes(col = as.factor(tutor))) +
     theme_bw() + theme(legend.position="none")
 
-gg1|gg2|gg3
+    #gg1|gg2|gg3
 
-ggsave(here::here('Output/Fig_2.png'), gg1|gg2|gg3, width = 12*2, height = 4*2, units = 'cm')
+    #ggsave(here::here('Output/Fig_2_v2.png'), gg1|gg2|gg3, width = 12*2, height = 4*2, units = 'cm')
 
 # combine
 
@@ -117,7 +108,6 @@ combine_2 =  (gg1|gg2|gg3) & plot_annotation(subtitle = "Alam et al. 2024 data; 
 
 wrap_elements(combine_1) / wrap_elements(combine_2)
 
-ggsave(here::here('Output/Fig_point_1.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
+ggsave(here::here('Output/Fig_point_1_v2.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
 
-
-# NOT USED
+# END

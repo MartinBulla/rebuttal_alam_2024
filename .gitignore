@@ -12,8 +12,8 @@
 
 !/Data/
 !/R/
-!/Outputs/
-!/Reports/
+!/Output/
+!/Report/
 
 # Ignore everything in these folders(even if in Except)
 freeze/

@@ -1,6 +1,6 @@
 ## Data and code for "No support for honest signalling of male quality in zebra finch song"
 
-When using this content **PLEASE CITE** the paper (link will be added soon)) and [this repository](https://github.com/MartinBulla/rebuttal_alam_2024).
+When using this content **PLEASE CITE** the [preprint](https://ecoevorxiv.org/repository/view/7530/) and [this repository](https://github.com/MartinBulla/rebuttal_alam_2024).
 
 
 [Data](Data/):

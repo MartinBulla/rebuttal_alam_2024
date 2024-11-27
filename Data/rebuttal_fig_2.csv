@@ -9,6 +9,6 @@ trial_id,side_bias,song_pair,long,short,pre,trial,post,trial_long,trial_short
 8,non-preferred arm,pair 2,49.8,19.51,16.333333,28,11.33333,8.15,16.9
 9,non-preferred arm,pair 3,36.44,30.72,15.5,62,65.33333,11.1,10.5
 10,non-preferred arm,pair 3,36.44,30.72,42.6666667,57.6666667,15,16.85,11.4
-13,preferred arm,pair 2,49.8,19.51,69.6666667,98.3333333,74,28.75,0
+13,non-preferred arm,pair 2,49.8,19.51,69.6666667,98.3333333,74,28.75,0
 11,preferred arm,pair 3,36.44,30.72,36.6666667,94,37,27.6,1.65
 12,preferred arm,pair 3,36.44,30.72,72.6666667,100,76.66667,29.2,0

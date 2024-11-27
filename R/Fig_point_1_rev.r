@@ -34,10 +34,12 @@ g1=
 ggplot(d, aes(x = x, y = y)) + 
     geom_point(col = col_p, size = 1.5, alpha = 0.6) +
     stat_poly_line(se = FALSE, col = col_l) +
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 52-(52-20)*per_ , hjust = 0.5, cex = 3) + theme_bw() + 
+    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 52-(52-20)*per_ , hjust = 0.5, cex = 3) + 
     coord_cartesian(xlim = c(20, 50), ylim = c(20, 52)) +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
-    scale_y_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))
+    scale_y_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0)) +
+    theme_bw() + 
+    theme(axis.ticks = element_blank())
 
     #stat_poly_eq() 
 
@@ -45,19 +47,23 @@ g2=
 ggplot(d, aes(x = x, y = y-x)) + 
     geom_point(col = col_p, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +#geom_point(col = col_p) +
     stat_poly_line(se = FALSE, col = col_l) +
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 20-36*per_, hjust = 0.5, cex = 3) + theme_bw() + 
+    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 20-36*per_, hjust = 0.5, cex = 3) +
     coord_cartesian(xlim = c(20, 50), ylim = c(-20, 20)) +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
-    scale_y_continuous(breaks = seq(-20,20, by=10), labels = seq(-20,20, by=10),expand = c(0,0))
+    scale_y_continuous(breaks = seq(-20,20, by=10), labels = seq(-20,20, by=10),expand = c(0,0)) +
+    theme_bw() + 
+    theme(axis.ticks = element_blank())
 
 g3=  
 ggplot(d, aes(x = x, y = y+x)) + 
     geom_point(col = col_p, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +
     stat_poly_line(se = FALSE, col = col_l) +
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 90-(90-50)*per_, hjust = 0.5, cex = 3) + theme_bw() + 
+    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 90-(90-50)*per_, hjust = 0.5, cex = 3) + 
     coord_cartesian(xlim = c(20, 50), ylim = c(50, 90)) +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
-    scale_y_continuous(breaks = seq(50,90, by=10), labels =seq(55,95, by=10),expand = c(0,0))
+    scale_y_continuous(breaks = seq(50,90, by=10), labels =seq(55,95, by=10),expand = c(0,0)) +
+    theme_bw() + 
+    theme(axis.ticks = element_blank())
 
     #g1|g2|g3
 
@@ -79,7 +85,9 @@ ggplot(dd, aes(x =tutor_path, y = pupil_path_full)) +
     xlab('Tutor path length') + ylab('Pupil path length') +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
-    theme_bw() + theme(legend.position="none")
+    theme_bw() + 
+    theme(  legend.position="none",
+            axis.ticks = element_blank())
 
 gg2=  
 ggplot(dd, aes(x =tutor_path, y = pupil_path_full-tutor_path)) + 
@@ -91,7 +99,9 @@ ggplot(dd, aes(x =tutor_path, y = pupil_path_full-tutor_path)) +
     xlab('Tutor path length') + ylab('Pupil minus tutor path length') +
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(-20,20, by=10), labels =seq(-20,20, by=10),expand = c(0,0))+
-    theme_bw() + theme(legend.position="none")
+    theme_bw() + 
+    theme(  legend.position="none",
+            axis.ticks = element_blank())
  
 
 gg3=  
@@ -104,7 +114,9 @@ ggplot(dd, aes(x =tutor_path, y = tutor_path+pupil_path_full)) +
     xlab('Tutor path length') + ylab('Pupil + tutor path length')+
     scale_x_continuous(breaks = seq(20,50, by=10), labels = seq(20,50, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(50,90, by=10), labels =seq(50,90, by=10),expand = c(0,0))+
-    theme_bw() + theme(legend.position="none")
+    theme_bw() + 
+    theme(  legend.position="none",
+            axis.ticks = element_blank())
 
     #gg1|gg2|gg3
 

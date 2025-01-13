@@ -51,11 +51,11 @@ ggplot(d, aes(x = path_delta, y = long_vs_baseline)) +
     annotate("text", x = 5.72, y = 0, label = "pair 3", size =3) + 
     #scale_shape_manual(guide = "none", values = c(21, 22, 23)) +
     #guides(fill = guide_legend(override.aes=list(shape=21))) +
-    labs(x = 'Long-path minus short-path song\n ', y = 'Proportion of time with a long-path\n[trial minus baseline]')+
+    labs(x = '∆ path length of a stimulus pair\n [long-path minus short-path song]', y = 'Proportion of time with a long-path\n[trial minus baseline]')+
     theme_bw()+
-    theme(axis.ticks = element_blank())
+   theme(axis.ticks = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
-ggsave(here::here("Output/Fig_point_2_rev.png"), g, width = 8, height = 7.4, unit = "cm")
+ggsave(here::here("Output/Fig_point_2_rev_v2.png"), g, width = 8, height = 7.4, unit = "cm")
 
 # pre as baseline
 xp = d[, mean((trial-pre)/100), by = path_delta] %>% setnames('V1', 'mean')
@@ -84,7 +84,7 @@ ggplot(d, aes(x = path_delta, y = (trial-pre)/100)) +
     #guides(fill = guide_legend(override.aes=list(shape=21))) +
     labs(x = 'Long-path minus short-path song\n ', y = 'Proportion of time with a long-path\n[trial minus pre-trial]')+
     theme_bw()+
-    theme(axis.ticks = element_blank())
+    theme(axis.ticks = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
 ggsave(here::here("Output/Fig_point_2_rev_pretrial-baseline.png"), gp, width = 8, height = 7.4, unit = "cm")
 

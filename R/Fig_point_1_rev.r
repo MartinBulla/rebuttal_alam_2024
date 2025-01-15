@@ -129,7 +129,7 @@ combine_2 =  (gg1|gg2|gg3) & plot_annotation(subtitle = "Alam et al. 2024 data; 
 
 wrap_elements(combine_1) / wrap_elements(combine_2)
 
-ggsave(here::here('Output/Fig_point_1_rev_v3.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
+ggsave(here::here('Output/Fig_point_1_width-143mm.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
 
 # replies to the referees - residuals from the line of idenity
 # point A

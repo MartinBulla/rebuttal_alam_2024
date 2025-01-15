@@ -39,23 +39,23 @@ ggplot(d, aes(x = path_delta, y = long_vs_baseline)) +
     annotate("text", x = 13, y = 0.49, label = "preferred arm", size =2.75, col = col_[2], hjust = 0) + 
     annotate("text", x = 13, y = 0.455, label = "non-preferred arm", size =2.75, col = col_[1], hjust = 0) + 
 
-    stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = 0.6-(0.6+.03)*per_*1.3,hjust = 0.5, vjust = 0, cex = 3) +
+   # stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = 0.6-(0.6+.03)*per_*1.3,hjust = 0.5, vjust = 0, cex = 3) +
 
     coord_cartesian(xlim = c(0, 35), ylim = c(-.03, .6)) +
     scale_x_continuous(breaks = seq(0,30, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(0,.6, by=.2), expand = c(0,0))+
     scale_color_manual(guide = "none", values = col_) +
     
-    annotate("text", x = 15, y = 0, label = "pair 1", size =3) + 
-    annotate("text", x = 30.29, y = 0, label = "pair 2", size =3) + 
-    annotate("text", x = 5.72, y = 0, label = "pair 3", size =3) + 
+    annotate("text", x = 15, y = 0, label = "pair #1", size =3) + 
+    annotate("text", x = 30.29, y = 0, label = "pair #2", size =3) + 
+    annotate("text", x = 5.72, y = 0, label = "pair #3", size =3) + 
     #scale_shape_manual(guide = "none", values = c(21, 22, 23)) +
     #guides(fill = guide_legend(override.aes=list(shape=21))) +
-    labs(x = '∆ path length of a stimulus pair\n [long-path minus short-path song]', y = 'Proportion of time with a long-path\n[trial minus baseline]')+
+    labs(x = '∆ path length of a stimulus pair\n[long-path minus short-path song]\n', y = 'Change in\nproportion of time within a long-path\n[trial minus baseline]')+
     theme_bw()+
    theme(axis.ticks = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
-ggsave(here::here("Output/Fig_point_2_rev_v2.png"), g, width = 8, height = 7.4, unit = "cm")
+ggsave(here::here("Output/Fig_point_2_width-52mm_v2.png"), g, width = 8.5, height = 7.4*8.5/8, unit = "cm")
 
 # pre as baseline
 xp = d[, mean((trial-pre)/100), by = path_delta] %>% setnames('V1', 'mean')

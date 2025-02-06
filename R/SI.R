@@ -240,8 +240,9 @@ m_out = function(model = m, name = "define",
         x[is.na(x)] = ""
         return(x)
       } 
+
 #' ## Point 1 - statistical artifact  
-#+ F_1, fig.width = inch*11*2, fig.height = inch*22
+#+ F_1, fig.width = inch*12*2, fig.height = inch*8.5*2
 # Fig 1, top panels - random data
 h = data.table(
 x = rnorm(1000, mean = 35, sd = 4),
@@ -358,6 +359,8 @@ combine_2 =  (gg1|gg2|gg3) & plot_annotation(subtitle = "Alam et al. 2024 data; 
 ggsave(here::here('Output/rev_Fig_1_width-143mm.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
 
 wrap_elements(combine_1) / wrap_elements(combine_2)
+#' <a name="F_1">
+#' **Figure 1</a> | Illustration of illusory relationships when an x-variable is included in both axes.** The **top** panels are based on the 1,000 randomly sampled values of x and y, the **bottom** panels depict data from Fig. 4c of Alam et al. 2024. In **both** the top and bottom panels, dots represent individual data points, with colour in the bottom panels indicating individual tutors. Lines represent ordinary least-square regressions. *r* denotes a Pearson’s correlation coefficient. The **left** panels highlight the absence of relationships in the data. The **middle** panels show negative relationships, and the **right** panels show positive relationships, both arising from including an x-variable also in the y-variable.
 
 #' #### Output used in the replies to the reviewer comments
 #+ Fig_reply_p1, fig.width=14.7*inch, fig.height = 8*inch

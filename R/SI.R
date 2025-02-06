@@ -240,7 +240,9 @@ m_out = function(model = m, name = "define",
         x[is.na(x)] = ""
         return(x)
       } 
-
+#'
+#' ***
+#' 
 #' ## Point 1 - statistical artifact  
 #+ F_1, fig.width = inch*12*2, fig.height = inch*8.5*2
 # Fig 1, top panels - random data
@@ -361,7 +363,7 @@ ggsave(here::here('Output/rev_Fig_1_width-143mm.png'), wrap_elements(combine_1) 
 wrap_elements(combine_1) / wrap_elements(combine_2)
 #' <a name="F_1">
 #' **Figure 1</a> | Illustration of illusory relationships when an x-variable is included in both axes.** The **top** panels are based on the 1,000 randomly sampled values of x and y, the **bottom** panels depict data from Fig. 4c of Alam et al. 2024. In **both** the top and bottom panels, dots represent individual data points, with colour in the bottom panels indicating individual tutors. Lines represent ordinary least-square regressions. *r* denotes a Pearson’s correlation coefficient. The **left** panels highlight the absence of relationships in the data. The **middle** panels show negative relationships, and the **right** panels show positive relationships, both arising from including an x-variable also in the y-variable.
-
+#'  
 #' #### Output used in the replies to the reviewer comments
 #+ Fig_reply_p1, fig.width=14.7*inch, fig.height = 8*inch
 # replies to the referees - residuals from the line of idenity
@@ -844,12 +846,15 @@ f3
 #' <a name="F_3">
 #' **Figure 3</a> | Female preference for the presumed long-path song in relation to path-length differences within stimulus pairs.** The x-axis represents the difference in path lengths between the two songs of each stimulus pair. Notably, only stimulus pair #2 (at the right end of the plot) shows a strong contrast between a very short and a very long path, yet it elicited the weakest female preference for the long-path song. The y-axis quantifies the strength of female preference for the long-path song, calculated as the change in the proportion of time spent in the choice-chamber arm with the long-path playback during the trial compared to baseline (the mean of pre- and post-trial periods). Dots represent individual observations for each stimulus pair, with dot colour indicating whether the long-path song was played in the arm preferred by the female during the pre-trial period (orange) or in the other arm (blue), illustrating the unbalanced arm-assignment. Red diamonds represent the mean female response to each stimulus pair, indicating the effective sample size of three.
 #' 
+#' ***
+#' 
 #' ### Session information
 
 #'*The figures were generated using the below indicated version of R and its related packages, running on the below indicated macOS. The installation of R and related R-packages takes only a few mintues. How to install R and R-packages is described [here](https://rstudio-education.github.io/hopr/starting.html) and [here](https://rstudio-education.github.io/hopr/packages2.html#installing-packages)*
 #' 
 pander(sessionInfo()) # pander(sessionInfo(), compact = FALSE)
 
+#' 
 #' ### Demo & Reproduction Instructions
 #' We do not provide any demo data, because the three *csv* files used in the analyses are small and already contain all the data used in the analyses. 
 

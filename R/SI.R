@@ -44,7 +44,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = FALSE)
 #' * [Dat_rnorm.Rdata](https://github.com/MartinBulla/rebuttal_alam_2024/tree/main/Data/Dat_rnorm.Rdata): random data from the Fig 1 generated in the [Fig_point_1.r](R/Fig_point_1.r) script
 #' 
 #' 
-#' [R](https://github.com/MartinBulla/rebuttal_alam_2024/tree/main/R/)-scripts used in the analysis, ❗ run relative to the project's root directory, with the same folder structure as the [repository](https://github.com/MartinBulla/rebuttal_alam_2024): 
+#' [R](https://github.com/MartinBulla/rebuttal_alam_2024/tree/main/R/)-scripts used in the analysis,❗run relative to the project's root directory, with the same folder structure as the [repository](https://github.com/MartinBulla/rebuttal_alam_2024/): 
 #'  
 #' For the first submission:  
 #' 
@@ -841,5 +841,13 @@ f3
 #' <a name="F_3">
 #' **Figure 3</a> | Female preference for the presumed long-path song in relation to path-length differences within stimulus pairs.** The x-axis represents the difference in path lengths between the two songs of each stimulus pair. Notably, only stimulus pair #2 (at the right end of the plot) shows a strong contrast between a very short and a very long path, yet it elicited the weakest female preference for the long-path song. The y-axis quantifies the strength of female preference for the long-path song, calculated as the change in the proportion of time spent in the choice-chamber arm with the long-path playback during the trial compared to baseline (the mean of pre- and post-trial periods). Dots represent individual observations for each stimulus pair, with dot colour indicating whether the long-path song was played in the arm preferred by the female during the pre-trial period (orange) or in the other arm (blue), illustrating the unbalanced arm-assignment. Red diamonds represent the mean female response to each stimulus pair, indicating the effective sample size of three.
 #' 
-#' ### Session info
+#' ### Session information
+
+#'*The figures were generated using the below indicated version of R and its related packages, running on the below indicated macOS. The installation of R and related R-packages takes only a few mintues. How to install R and R-packages is described [here](https://rstudio-education.github.io/hopr/starting.html) and [here](https://rstudio-education.github.io/hopr/packages2.html#installing-packages)*
+#' 
 pander(sessionInfo()) # pander(sessionInfo(), compact = FALSE)
+
+#' ### Demo & Reproduction Instructions
+#' We do not provide any demo data, because the three *csv* files used in the analyses are small and already contain all the data used in the analyses. 
+
+#' To generate the outputs, download the [files](Data/) into *Data* folder of your project's root directory and create a folder *Output*. Open *R* software and the *Fig_point_1.r* or  *Fig_point_2.r* R-script (for outputs on initial submission) and *SI.R* for the final outputs, install the R-packages indicated under the tools by running `install.packages(c('arm','cowplot', 'data.table', 'foreach','ggplot2', 'ggpmisc', 'ggpubr', 'grafify', 'grid', 'gridExtra, 'kableExtra', 'legendry', 'pander', 'patchwork','rptR','tidyr')` and run the scripts. The pngs of the figures and the html document of the whole supporting information will be generated in *Output*.

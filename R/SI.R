@@ -363,6 +363,7 @@ ggsave(here::here('Output/rev_Fig_1_width-143mm.png'), wrap_elements(combine_1) 
 wrap_elements(combine_1) / wrap_elements(combine_2)
 #' <a name="F_1">
 #' **Figure 1</a> | Illustration of illusory relationships when an x-variable is included in both axes.** The **top** panels are based on the 1,000 randomly sampled values of x and y, the **bottom** panels depict data from Fig. 4c of Alam et al. 2024. In **both** the top and bottom panels, dots represent individual data points, with colour in the bottom panels indicating individual tutors. Lines represent ordinary least-square regressions. *r* denotes a Pearson’s correlation coefficient. The **left** panels highlight the absence of relationships in the data. The **middle** panels show negative relationships, and the **right** panels show positive relationships, both arising from including an x-variable also in the y-variable.
+#'   
 #'  
 #' #### Output used in the replies to the reviewer comments
 #+ Fig_reply_p1, fig.width=14.7*inch, fig.height = 8*inch
@@ -782,7 +783,7 @@ grid.draw(ed_f2_gg)
 #' **Extended Data Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. Each panel represents a different latent space iteration serving as the reference. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations and illustrate how often the long-path song is reclassified as short-path in another iteration. The panel titles highlight the percentage of reclassifications, which was overl `r round(mean(bb$flip_pr))`%.  
 
 #'
-#' #### Output used in the replies to the reviewer comments
+#' ### Output used in the replies to the reviewer comments
 #+ Fig_reply_1, fig.width=8.8*inch, fig.height = 8*inch
 
 gr = 

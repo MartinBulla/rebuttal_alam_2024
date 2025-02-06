@@ -1,0 +1,591 @@
+#' ---
+#' title: "Point 2 for the resubmission"
+#' author: "Martin Bulla"
+#' date: "`r Sys.time()`"
+#' output: 
+#'     html_document:
+#'         toc: true
+#'         toc_float: true
+#'         toc_depth: 5
+#'         code_folding: hide
+#'         link-citations: yes
+#' ---
+
+#+ r setup, include=FALSE 
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = FALSE)
+
+# =============================================================
+# ❗ The script runs relative to the project's root directory,
+#  requires "Fig_2b.csv", "match_labels_output.csv" and 
+#  Dat_path_length.csv to generates Fig. 2
+# =============================================================
+
+#' ##### Code to load tools & data
+# load R-packages
+require(arm)
+require(cowplot)  
+require(data.table)
+require(foreach)     
+require(ggplot2)
+require(ggpmisc)
+require(ggpubr)
+require(grid)
+require(kableExtra)
+require(legendry)  
+require(patchwork)
+require(rptR)
+require(tidyr)
+
+# constants
+set.seed(5) # for simulations
+nsim = 5000
+orig_ = '#D43F3AFF'
+furt_ = '#46B8DAFF'#"#357EBDFF"#
+col_p = 'darkgrey'
+point_out = 'grey30'
+point_fill = "#46B8DAFF"
+col_R = "#D43F3AFF"
+col_l = 'red'
+col_ <- c("#46B8DAFF", "#EEA236FF")#c("#357EBDFF", "#D43F3AFF", "#46B8DAFF", "#5CB85CFF", "#EEA236FF", "#9632B8FF", "#9632B8FF")[7:1]
+#col_2 <- c("#357EBDFF", "#D43F3AFF", "#46B8DAFF", "#5CB85CFF", "#EEA236FF", "#9632B8FF", "#9632B8FF") # require(scales);show_col(col_2)
+#col_3 <- c("#46B8DAFF","#5CB85CFF", "#EEA236FF") # require(scales);show_col(col_2)
+scale_size = 0.352778
+inch = 0.393701
+force_0_yes = FALSE
+
+# function for model outpus
+m_out = function(model = m, name = "define", 
+        type = "mixed", 
+        dep = "define", fam_ = 'Gaussian',
+        round_ = 2, nsim = 5000, aic = FALSE, save_sim = here::here('Data/model_sim/'), back_tran = FALSE, perc_ = 1, R2 = FALSE){
+          # perc_ 1 = proportion or 100%
+        bsim = sim(model, n.sim=nsim)  
+        
+        if(save_sim!=FALSE){save(bsim, file = paste0(save_sim, name,'.RData'))}
+       
+        if(type != "mixed"){
+          v = apply(bsim@coef, 2, quantile, prob=c(0.5))
+          ci = apply(bsim@coef, 2, quantile, prob=c(0.025,0.975)) 
+
+          if(back_tran == TRUE & fam_ == "binomial"){
+           v = perc_*plogis(v)
+           ci = perc_*plogis(ci)
+           }
+          if(back_tran == TRUE & fam_ == "binomial_logExp"){
+                v = perc_*(1-plogis(v))
+                ci = perc_*(1-plogis(ci))
+                ci = rbind(ci[2,],ci[1,])
+               }
+
+          if(back_tran == TRUE & fam_ == "Poisson"){
+           v = exp(v)
+           ci = exp(ci)
+          }
+
+         oi=data.frame(type='fixed',effect=rownames(coef(summary(model))),estimate=v, lwr=ci[1,], upr=ci[2,])
+          rownames(oi) = NULL
+          oi$estimate_r=round(oi$estimate,round_)
+          oi$lwr_r=round(oi$lwr,round_)
+          oi$upr_r=round(oi$upr,round_)
+          if(perc_ == 100){
+           oi$estimate_r = paste0(oi$estimate_r,"%")
+           oi$lwr_r = paste0(oi$lwr_r,"%")
+           oi$upr_r = paste0(oi$upr_r,"%")
+          }
+         x=data.table(oi[c('type',"effect", "estimate_r","lwr_r",'upr_r')]) 
+       
+        }else{
+         v = apply(bsim@fixef, 2, quantile, prob=c(0.5))
+         ci = apply(bsim@fixef, 2, quantile, prob=c(0.025,0.975)) 
+
+         if(back_tran == TRUE & fam_ == "binomial"){
+          v = perc_*plogis(v)
+          ci = perc_*plogis(ci)
+         }
+          if(back_tran == TRUE & fam_ == "binomial_logExp"){
+                v = perc_*(1-plogis(v))
+                ci = perc_*(1-plogis(ci))
+                ci = rbind(ci[2,],ci[1,])
+               }
+
+          if(back_tran == TRUE & fam_ == "Poisson"){
+            v = exp(v)
+            ci = exp(ci)
+         }
+
+        oi=data.table(type='fixed',effect=rownames(coef(summary(model))),estimate=v, lwr=ci[1,], upr=ci[2,])
+            rownames(oi) = NULL
+            oi[,estimate_r := round(estimate,round_)]
+            oi[,lwr_r := round(lwr,round_)]
+            oi[,upr_r :=round(upr,round_)]
+            if(perc_ == 100){
+             oi[,estimate_r := paste0(estimate_r,"%")]
+             oi[,lwr_r := paste0(lwr_r,"%")]
+             oi[,upr_r := paste0(upr_r,"%")]
+            }
+         oii=oi[,c('type',"effect", "estimate_r","lwr_r",'upr_r')] 
+        
+         l=data.frame(summary(model)$varcor)
+         l = l[is.na(l$var2),]
+         l$var1 = ifelse(is.na(l$var1),"",l$var1)
+         l$pred = paste(l$grp,l$var1)
+
+         q050={}
+         q025={}
+         q975={}
+         pred={}
+         
+         # variance of random effects
+         for (ran in names(bsim@ranef)) {
+           ran_type = l$var1[l$grp == ran]
+           for(i in ran_type){
+            q050=c(q050,quantile(apply(bsim@ranef[[ran]][,,ran_type], 1, var), prob=c(0.5)))
+            q025=c(q025,quantile(apply(bsim@ranef[[ran]][,,ran_type], 1, var), prob=c(0.025)))
+            q975=c(q975,quantile(apply(bsim@ranef[[ran]][,,ran_type], 1, var), prob=c(0.975)))
+            pred= c(pred,paste(ran, i))
+            }
+           }
+         # residual variance
+         q050=c(q050,quantile(bsim@sigma^2, prob=c(0.5)))
+         q025=c(q025,quantile(bsim@sigma^2, prob=c(0.025)))
+         q975=c(q975,quantile(bsim@sigma^2, prob=c(0.975)))
+         pred= c(pred,'Residual')
+
+         ri=data.table(type='random',effect=pred, estimate_r=round(100*q050/sum(q050)), lwr_r=round(100*q025/sum(q025)), upr_r=round(100*q975/sum(q975)))
+           
+         ri[lwr_r>upr_r, lwr_rt := upr_r]
+         ri[lwr_r>upr_r, upr_rt := lwr_r]
+         ri[!is.na(lwr_rt), lwr_r := lwr_rt]
+         ri[!is.na(upr_rt), upr_r := upr_rt]
+         ri$lwr_rt = ri$upr_rt = NULL
+
+         ri[,estimate_r := paste0(estimate_r,'%')]
+         ri[,lwr_r := paste0(lwr_r,'%')]
+         ri[,upr_r := paste0(upr_r,'%')]
+        
+        x = data.table(rbind(oii,ri))
+        }
+        
+        x[1, model := name]                                                                
+        x[1, response := dep]                                                                
+        x[1, error_structure := fam_]      
+        N = length(resid(model))                                                          
+        x[1, N := N ]                                                                
+
+        x=x[ , c('model', 'response', 'error_structure', 'N', 'type',"effect", "estimate_r","lwr_r",'upr_r')] 
+
+        if (aic == TRUE){   
+            x[1, AIC := AIC(update(model,REML = FALSE))] 
+            }
+        if (aic == "AICc"){
+            aicc = AICc(model)
+            x[1, AICc := aicc] 
+        }
+        if(type == "mixed" & nrow(x[type=='random' & estimate_r =='0%'])==0 & R2 == TRUE){
+          R2_mar = as.numeric(r2_nakagawa(model)$R2_marginal)
+          R2_con = as.numeric(r2_nakagawa(model)$R2_conditional)
+          x[1, R2_mar := R2_mar]
+          x[1, R2_con := R2_con]
+         }
+        x[is.na(x)] = ""
+        return(x)
+      } 
+      
+#' ## Repeatability of path length for tutored birds
+#+ rep
+# in Alam et al's 18 bird dataset behind Fig. 2b
+## load path length data
+d = fread(here::here('Data/Fig_2b.csv'), header = T) %>% 
+            pivot_longer( 
+                cols = `1`:`15`, 
+                names_to = "UMAP", 
+                values_to = "path_length")  %>%   
+                        data.table()
+## load syllable count data
+s = fread(here::here('Data/match_labels_output.csv'), header = T) 
+## merge
+dd = data.table(merge(d,s[,.(f2b_bird_name,superset_bird_type, superset_bird_nsyll)], all.x = TRUE, by.x = 'bird', by.y = 'f2b_bird_name')) %>% 
+    setnames('superset_bird_nsyll', 'n_syll')
+
+## repeatability for known tutored birds and with available syllable count 
+m = lmer(path_length ~ (1 | bird), data = dd[superset_bird_type%in%'tutored'])
+o_m = m_out(m, name = '1', dep = "path_length", save_sim = FALSE)
+
+## repeatability controlled for syllable count
+ms = lmer(path_length ~ n_syll + (1 | bird), data = dd[superset_bird_type%in%'tutored'])
+o_ms = m_out(ms, name = '2', dep = "path_length", save_sim = FALSE)
+
+# for 31 tutored birds from Fig 2c
+## load data
+a = fread(here::here('Data/Dat_path_length.csv'), header = T) # the dataset was created using Alam et al's Fig 2c data on 31 birds available from https://doi.org/10.18738/T8/WBQM4I/Q92O9A and using their procedure to generated 20 UMAPs - see https://github.com/ymir-k/UMAP_test/tree/main/AlamTests/3-RseedTest
+a[, path_length := kdistance] #length(unique(a$bird_id)) # n = 31 birds
+#ggplot(a[n_syll ==5], aes(x = bird_id, y=path_length)) + geom_point(pch = 21) + geom_line(aes(col = as.factor(iteration)))
+#ggplot(a, aes(x = n_syll, y=path_length, fill = as.factor(n_syll), group=bird_id)) +geom_point(pch = 21)
+
+## repeatability
+m31 = lmer(path_length ~ (1 | bird_id), data = a)
+o_m31 = m_out(model = m31, name = '1', dep = "path_length", save_sim = FALSE)
+
+## repeatability controlled for syllable count
+ms31 = lmer(path_length ~ n_syll + (1 | bird_id), data = a)
+o_ms31 = m_out(model = ms31, name = '4', dep = "path_length", save_sim = FALSE)
+
+# export
+o1 = rbind(o_m,o_ms)
+o1[!is.na(N), `N birds` := dd[superset_bird_type%in%'tutored', length(unique(bird))]]
+o1[model %in%1, control:="none"]
+o1[model %in%2, control:="for syllable count"]
+
+o2 = rbind(o_m31,o_ms31)
+o2[!is.na(N), `N birds` := length(unique(a$bird_id))]
+o2[model %in%3, control:="none"]
+o2[model %in%4, control:="for syllable count"]
+
+oo = rbind(o1,o2)
+oo[, `95%CI` := paste(lwr_r, upr_r, sep = "-")]
+setnames(oo, c('estimate_r'), c('estimate'))
+oo[response%in%'path_length', response := 'path length']
+oo[effect%in%'n_syll', effect := 'syllable count']
+oo[is.na(control), control :=""]
+oo[effect%in%"bird_id (Intercept)", effect :="bird (Intercept)"]
+
+oo[,.(model, control, response, N, `N birds`, type, effect, estimate,`95%CI` )]  %>%
+  kbl(caption = "Table R | Repeatability of path-length in tutored birds") %>%
+  kable_paper("hover", full_width = F) #%>%
+  #scroll_box(width = "100%", height = "650px")
+
+#' Estimates and 95% credible intervals based on 5,000 simulated values generated by the sim function from the arm R-Package. The repeatability estimates represent the effect of 'bird'.")
+#'
+#' ## Reliability of within pair path-length differences
+#+ Fig_2, fig.width=17*inch, fig.height = inch*7.4*8.5/8
+# load data
+w = fread(here::here('Data/Dat_path_length.csv'), header = T) # the dataset was created using Alam et al's Fig 2c data on 31 birds available from https://doi.org/10.18738/T8/WBQM4I/Q92O9A and using their procedure to generated 20 UMAPs - see https://github.com/ymir-k/UMAP_test/tree/main/AlamTests/3-RseedTest
+setnames(w, c('kdistance'), c('path_length'))#w[, path_length := kdistance]
+# selcet 4 syllable males
+j=4
+wj = w[n_syll%in%j] 
+# create pair dataset (for each UMAP iteration add the path length of the second bird in a pair)
+pj <- wj[, { 
+# generate unique pairs of bird IDs
+bird_pairs <- CJ(bird_a = bird_id, bird_b = bird_id, sorted = TRUE)[bird_a < bird_b]
+
+# merge path lengths for bird_a and bird_b
+bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                    by.x = "bird_a", by.y = "bird_id", all.x = TRUE)
+setnames(bird_pairs, "path_length", "path_length_a")
+
+bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                    by.x = "bird_b", by.y = "bird_id", all.x = TRUE)
+setnames(bird_pairs, "path_length", "path_length_b")
+
+bird_pairs
+}, by = iteration]
+
+pj[, path_length_diff := path_length_a-path_length_b]
+pj[, delta := abs(path_length_diff)]
+pj[, pr := paste(bird_a,bird_b)]
+
+i = 3 # use the most variable iteration
+xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
+xi[pair==delta,adjust:= 1]
+xi[is.na(adjust), adjust :=-1]
+pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
+pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
+
+f2 =
+ggplot(pxi, aes(x = pair, y = delta)) + 
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax =0,fill = 'grey80',inherit.aes = FALSE)+
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = 0, ymax = Inf,fill = 'white',inherit.aes = FALSE)+
+    geom_vline(aes(xintercept = pair), col = 'grey75', lwd = 0.25) +
+    geom_hline(yintercept = 0, lty = 3, col = 'grey45', lwd = 0.25) +
+    geom_point(alpha = 0.8, pch = 21, size = 2, fill =furt_) + 
+    geom_point(data = pxi[iteration==i], aes(x = pair, y = delta), fill = orig_, pch = 21, size = 2) +
+    #geom_text(data = wxp, aes(x = pair, y = -45, label = swap_per), size = 0.8/scale_size, angle = 90, hjust = 0)+
+    annotate("text", x = 38.5, y = 39, label = "Initial difference", col = orig_, size = 0.9/scale_size, hjust = 1) + 
+    annotate("text", x = 39.75, y = 19, label = "Further differences", col = furt_, size = 0.9/scale_size, hjust = 1) + 
+    annotate("text", x = 48, y = 0, label = "Initial long song", size = 1/scale_size, angle = 90) + 
+    annotate("text", x = 49, y = 25, label = "remained the long one", size = 1/scale_size, angle = 90) + 
+    annotate("text", x = 49, y = -25, label = "became the short one", size = 1/scale_size, angle = 90) + 
+    labs(x = 'Initial path-length difference of a pair\n[indicated also by red dots]', y = 'Path-length difference\nfor each latent space iteration')+ #, tag = 'a'
+    #scale_y_continuous(lim = c(-30.2, 30.2), breaks=seq(-30,30, by = 10))+
+    scale_x_continuous(lim = c(-1,50), breaks = seq(0,50,by=10),expand = c(0,0))+
+    scale_y_continuous(lim = c(-50,50), breaks = seq(-50,50,by=10), expand = c(0,0))+
+    #scale_fill_manual(values = col_3) + 
+    theme_bw() +
+    theme(legend.position="none", 
+    plot.tag = element_text(face = "bold", size = 10),
+    axis.ticks = element_blank())    
+
+ggsave(here::here("Output/rev_Fig_2_width-110mm.png"), f2, width = 17, height = 7.4*8.5/8 , unit = "cm")
+f2
+
+#' <a name="F_2">
+#' **Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations and illustrate how often the long-path song is reclassified as short-path in another iteration. Depicted are data for the reference iteration with the largest variation in path-length differences, but other iterations provide similar results ([Extended Data Fig. 2](#ED_F2)). 
+
+#+ ED_f1, fig.width=8.5*inch,fig.height=8.5*inch
+# load data
+w4 = fread(here::here('Data/Dat_path_length.csv'), header = T)[n_syll%in%4] # the dataset was created using Alam et al's Fig 2c data on 31 birds available from https://doi.org/10.18738/T8/WBQM4I/Q92O9A and using their procedure to generated 20 UMAPs - see https://github.com/ymir-k/UMAP_test/tree/main/AlamTests/3-RseedTest
+setnames(w4, c('kdistance'), c('path_length'))
+ #summary(w[,.(bird_id, iteration, rseed, distance, path_length, n_syll)])
+
+# estimate the true value per male (best unbiased linear predictor)
+m1 = lmer(path_length ~ 1 + (1|bird_id), w4, REML=TRUE) # mixed effect model
+
+blups_with_intercept <- data.table(coef(m1)$bird_id) %>% setnames(new = 'blup')# extracts blubs with added intercept (same as ranef(m1)$bird_id + 36.652)
+blups_with_intercept[,bird_id:= unique(w4$bird_id)]
+
+wb = merge(w4, blups_with_intercept, all.x = TRUE)
+
+# plot the true vlaue agains the iterations
+#ggplot(wb, aes(x = blup, y = path_length, fill = as.factor(blup))) + geom_point(pch = 21, col = "white", size = 4)+ labs(x = "True inherent path length",  y = "Path length for each iteration") + coord_cartesian(xlim = c(10,70), ylim = c(10,70))+ theme(legend.position="none")
+
+# prepare the dataset for estimating the probability of incorrect assignment
+samples <- data.table(t(combn(unique(wb$bird_id), 6))) # all unique subsamples of 6 birds out of 11
+
+pp = foreach(i = unique(wb$iteration), .combine = rbind) %do% {
+# i = 0
+    wi = wb[iteration==i]
+    
+    p = foreach(j = 1:nrow(samples), .combine = rbind) %do% {
+        #j = 1
+        wij = wi[bird_id%in%samples[j]] 
+        wij = wij[order(path_length)]
+        pair = data.table(
+            pair = c('#1',"#2","#3"),
+            bird_a = c(wij$bird_id[2], wij$bird_id[5], wij$bird_id[6]),
+            bird_b = c(wij$bird_id[4], wij$bird_id[1], wij$bird_id[3]),
+            delta = c(wij$path_length[4]-wij$path_length[2],
+           wij$path_length[6]- wij$path_length[1],wij$path_length[5]- wij$path_length[3]
+            ),
+            delta_blub = c(wij$blup[4]-wij$blup[2], wij$blup[6] - wij$blup[1],wij$blup[5] - wij$blup[3]
+            ),
+        set = j
+        )
+        return(pair)
+    }
+    return(p[, iteration := i])
+}
+#nrow(pp)
+
+# assign 1 when the delta from one iteration is of oposite sign (long-path wrongly assigned) compare to the true difference
+pp[, incorrect := ifelse((delta >= 0 & delta_blub >= 0) | (delta < 0 & delta_blub < 0), 0, 1)] 
+
+# create a unique pair_id ensuring order is consistent
+pp[, pair_ab := paste(pmin(bird_a, bird_b), pmax(bird_a, bird_b), sep = "_")]
+
+# prepare predictions
+m2 = glm(incorrect~delta, pp, family = "binomial")
+bsim = sim(m2,n.sim = nsim)
+v <- apply(bsim@coef, 2, quantile, prob = c(0.5))#plogis(v)
+newD = data.table(delta = c(5,15,30,seq(0, max(pp$delta), length.out =100)))
+newD = newD[order(delta)]
+X = model.matrix(~delta, newD)
+predmatrix = matrix(nrow = nrow(newD), ncol = nsim)
+for(j in 1:nsim) predmatrix[,j] <-plogis(X %*% bsim@coef[j,])
+newD$pred <- plogis(X %*% v) # fitted values
+newD$lwr <- apply(predmatrix, 1, quantile, prob = 0.025)
+newD$upr <- apply(predmatrix, 1, quantile, prob = 0.975)
+
+# force through zero or not
+if(force_0_yes==TRUE){force0=0.5-newD$pred[1]}else{force0=0}
+newD$pred_0 = newD$pred + force0
+newD$lwr_0 = newD$lwr + force0
+newD$upr_0 = newD$upr + force0
+
+# prepare dataset for Alam et al's pair scenario
+pa =newD[delta %in% c(5, 15, 30)]
+pa[, pair:=c('Pair #3', 'Pair #1', 'Pair #2')]
+
+# prepare mean values for plotting
+pp[, delta_bin := cut(delta, 
+    breaks = seq(min(delta), max(delta), length.out = 11), 
+    include.lowest = TRUE)] #pp[, delta_bin := cut(delta, breaks = quantile(delta, probs = seq(0, 1, length.out = 11)), include.lowest = TRUE)]
+
+summary_stats <- pp[, .(
+    median_pr = median(incorrect, na.rm = TRUE), 
+    mean_pr = mean(incorrect, na.rm = TRUE),
+    mean_delta = mean(delta, na.rm = TRUE),
+    n = length(pair)
+), by = delta_bin]
+
+# prepare densityplot
+pp_0 <- pp[incorrect == 0]
+pp_1 <- pp[incorrect == 1]
+density_1 <- density(pp_1$delta) # Compute density for y = 1
+
+## Convert to a dataframe
+density_df_1 <- data.frame(
+  x = density_1$x, 
+  y = density_1$y / max(density_1$y) * 0.1 # Scale the density
+)
+## Flip the density so it extends *upwards* from y = 1
+density_df_1$ymin <- 1 - density_df_1$y  # Bottom boundary
+density_df_1$ymax <- 1                   # Top boundary (fixed at y = 1)
+
+# prepare legend
+g_leg = 
+ggplot() +
+  geom_point(data = summary_stats, aes(x = mean_delta, y = mean_pr, size = n), col = point_out, fill = point_fill, pch = 21, alpha = 0.8) +
+  scale_size_area(
+    limits = c(0, max(summary_stats$n, na.rm = TRUE)), 
+    max_size = 10, 
+    breaks = c(100, 1000, 5000), 
+    labels = c(100, 1000, 5000), 
+    guide = guide_circles(vjust = 1)
+  )+
+  theme_bw() +
+  theme(  legend.text=element_text(size=7),
+          legend.title=element_text(hjust=0.5, margin = margin(b = -1)),
+          legend.key = element_rect(colour = NA, fill = NA),
+          #legend.margin = margin(0,0,0,0, unit="cm"),
+          legend.background = element_blank())
+leg <- get_legend(g_leg)
+
+# prepare plot
+ed_f = 
+ggplot() + 
+  # Add marginal density plots at y = 0 and y = 1
+  geom_density(data = pp_0, aes(x = delta, y = after_stat(scaled) * 0.1), alpha = 0.3, fill = "grey90", col = "grey70") + 
+  geom_density(data = pp_1, aes(x = delta, y = 1 - after_stat(scaled) * 0.1),  alpha = 0.3, fill = NA, col = "grey70") +
+  geom_ribbon(data = density_df_1, aes(x = x, ymin = ymin, ymax = ymax), 
+              fill = "grey90", alpha = 0.3) +
+
+  # Add means of raw data
+  geom_point(data = summary_stats, aes(x = mean_delta, y = mean_pr, size = n), col = point_out, fill = "grey70", pch = 21, alpha = 0.8) +
+
+  # prediction from the logistic regression without 95%CI, as those are pseudoreplicated        
+  #geom_ribbon(data = newD,aes(ymin=lwr_0, ymax=upr_0, x=delta), fill = orig_, alpha = 0.2, show.legend = NA) +
+  geom_line(data = newD,aes(x = delta, y = pred_0), col = orig_) +
+  # Alam et al's pairs highlighted 
+  geom_point(data = pa, aes(x = delta, y = pred_0), pch = 21, fill = "red")+
+   # Add labels above the three points
+  geom_text(data = pa, aes(x = delta, y = pred_0, label = round(pred_0, 2)), vjust = -1, hjust = 0, color = "grey20", fontface = "bold", size = 1/scale_size) +  
+  geom_text(data = pa, aes(x = delta, y = pred_0, label = pair), vjust = -2.5, hjust = 0, color = "grey20", size = 1/scale_size) +  
+  scale_size_area(
+    limits = c(0, max(summary_stats$n, na.rm = TRUE)), 
+    max_size = 10, 
+    breaks = c(100, 1000, 5000), 
+    labels = c(100, 1000, 5000), 
+    guide = guide_legend(vjust = 1)
+  )+
+  scale_x_continuous(expand = c(0, 0),name = "Path-length difference of a pair\n[based on one iteration]", breaks=c(0,15,30,45)) +
+  scale_y_continuous(expand = c(0, 0), name = "Probability of incorrect classification\n[of long-path song within a pair]")+
+  coord_cartesian(xlim =c(0,45), ylim = c(0,1))+
+  #breaks = seq(0,1, by=0.25), labels = seq(0,100, by = 25)) 
+  #labs(tag = "b") +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(),
+        plot.tag = element_text(face = "bold", size = 10),
+        panel.grid.major = element_blank(),  # Remove major grid lines
+        panel.grid.minor = element_blank()   # Remove minor grid lines
+        ) 
+
+ed_f1 = 
+ggdraw() +
+  draw_plot(ggdraw(ggarrange(ed_f)) +
+              draw_grob(leg, x = 0.7, y = 0.65, width = 0.3, height = 0.3),
+            x = 0, y = 0, width = 1, height = 1)
+
+ggsave("Output/ED_Fig_1_width-55mm.png", width = 8.5, height = 8.5, units = "cm")  # width 8.5*.65
+ed_f1
+#' 
+#' <a name="ED_1">
+#' **Extended Data Figure 1</a> | Probability of incorrect long-path classification within stimulus pairs as a function of their path-length difference in a single UMAP iteration.** Density plots at the top and bottom indicate the distribution of the data. Grey points represent means for ten equally spaced x-axis intervals. The red line represents the predicted probability based on the joint posterior distribution of 5,000 simulated values from a logistic regression using the `sim` function from the `arm` [R-package](https://cran.r-project.org/package=arm). The three red dots, along with their values, indicate the probability of incorrect assignment for the three stimulus pairs used by Alam et al. The data for this figure were obtained as follows. We used Alam et al.’s spectrograms on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). Within each iteration, for each male we calculated the shortest path length between syllable clusters. To control for variation due to syllable count, we selected `r length(unique(w$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count). We fitted an intercept-only mixed-effects model with bird identity as a random intercept and using the `coef()` function in R extracted an unbiased estimate of the "true inherent path length" for each male, approximating an average over an infinite number of iterations. To simulate Alam et al's playback scenario of three stimulus pair contrasting presumably "long path" against "short path" songs, for each of the 20 iterations, we created all unique subsets of six males (n = `r nrow(samples)`), each with a slightly different set of six males. Within each subset (following Alam et al's Extended Data Fig. 5d), songs were sorted by their path length, and three song pairs created: Pair #1 contrasts the 2nd- and 4th-ranked song, Pair #2 the 1st- and 6th-ranked song, and Pair #3 the 3rd- and 5th-ranked song. This process resulted in `r nrow(pp)` comparisons (three pairs per subset across `r nrow(samples)` subsets and 20 iterations). For each pair, we noted whether the song appearing as "long-path" in a single iteration was actually "short-path" based on its true inherent value. A logistic regression was fitted to estimate how the probability of incorrect classification changes with the path-length difference in a given iteration. Note that the probability that all three stimulus pairs were correctly classified is only `r round(prod(1-round(pa$pred_0, 2))*100)`% (the product of the individual correct-classification probabilities).
+
+#+ ED_F2, fig.width=20*inch, fig.height = inch*18
+# create datasets with one iteration as a reference
+
+bl = list() # list for the figure data
+bbl = list() # list to estimate % of flipping
+
+for(i in unique(pj$iteration)){ #pj data.table comes from the sessions above
+  #i = 3
+  xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
+  xi[pair==delta,adjust:= 1]
+  xi[is.na(adjust), adjust :=-1]
+  pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
+  pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
+  pxi[, ref_iteration :=  i]
+
+  # create panel titles and data to estimate % of flipping
+  pxip = pxi[!iteration%in%i, if(adjust[1]==-1){sum(path_length_diff > 0)}else{sum(path_length_diff <0)}, by = list(pr,pair)] %>% setnames(old = 'V1', new = 'flip')
+  pxip[, flip_per:=paste0(round(100*flip/(length(unique(pxi$iteration))-1)),'%')]  #paste0(round(100*swap/20), %)]  
+  pxip[, flip_pr:=round(100*flip/(length(unique(pxi$iteration))-1))]
+
+  pxi[, panel_titles := paste0("iteration: ", i, "; reclassified: ", paste0(round(mean(pxip$flip_pr)),'%'))]
+
+  bl[[i+1]]= pxi
+  bbl[[i+1]] = pxip
+}
+
+b = do.call(rbind,bl)
+bb = do.call(rbind,bbl)
+
+b[, panel_titles := factor(panel_titles, levels = unique(b[order(ref_iteration), panel_titles]))] # define plotting order
+
+# plot
+ed_f2 =
+ggplot(b, aes(x = pair, y = delta)) + 
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax =0,fill = 'grey80',inherit.aes = FALSE)+
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = 0, ymax = Inf,fill = 'white',inherit.aes = FALSE)+
+    geom_vline(aes(xintercept = pair), col = 'grey75', lwd = 0.25) +
+    geom_hline(yintercept = 0, lty = 3, col = 'grey45', lwd = 0.25) +
+    geom_point(alpha = 0.5, pch = 21, size = 2, fill =furt_) + 
+    geom_point(data = b[iteration==ref_iteration], aes(x = pair, y = delta), fill = orig_, pch = 21, size = 2) +
+    facet_wrap(~panel_titles, nrow = 5, ncol = 4) + 
+    labs(x = 'Initial path-length difference of a pair\n[indicated also by red dots]', y = 'Path-length difference of a pair\nfor each latent space iteration')+ #subtitle = paste("Iteration #:",i))+
+    #scale_y_continuous(lim = c(-30.2, 30.2), breaks=seq(-30,30, by = 10))+
+    scale_x_continuous(lim = c(-1,50), ,expand = c(0,0))+ #breaks = seq(0,50,by=10)
+    scale_y_continuous(lim = c(-50,50),  expand = c(0,0))+ #breaks = seq(-50,50,by=10),
+    #scale_fill_manual(values = col_3) + 
+    geom_text(
+      data = b[panel_titles == unique(b$panel_titles)[1]][1,],  # Select first panel only
+      aes(x = 40, y = -25, label = "reclassified"),
+      size = 7*scale_size
+    ) +
+    geom_text(
+      data = b[panel_titles == unique(b$panel_titles)[1]][1,],  # Select first panel only
+      aes(x = 40, y = 25, label = "hold"),
+      size = 7*scale_size
+    ) +
+    theme_bw() +
+    theme(legend.position="none", 
+    strip.background = element_blank(),
+    axis.ticks = element_blank()
+    )
+
+# remove lables
+ed_f2_g <- ggplotGrob(ed_f2) # gg$layout$name
+gtable_filter_remove <- function (x, name, trim = TRUE){
+  matches <- !(x$layout$name %in% name)
+  x$layout <- x$layout[matches, , drop = FALSE]
+  x$grobs <- x$grobs[matches]
+  if (trim) 
+    x <- gtable_trim(x)
+  x
+}
+ed_f2_gg <- gtable_filter_remove(ed_f2_g, name = c("axis-b-2-5", "axis-b-4-5"), trim = FALSE) # paste0("axis-b-", c(2, 4), "-9")
+ggsave(here::here(paste0("Output/ED_Fig_2_syll_",j,"_width-130mm.png")), ed_f2_gg, width = 20, height = 18, unit = "cm") #width =  20*0.65
+ 
+grid.draw(ed_f2_gg)
+
+#' <a name="ED_F2">
+#' **Extended Data Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. Each panel represents a different latent space iteration serving as the reference. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations and illustrate how often the long-path song is reclassified as short-path in another iteration. The panel titles highlight the percentage of reclassifications, which was overl `r round(mean(bb$flip_pr))`%.  
+
+#'
+#' ## Outputs used in the replies to the reviewer comments
+#+ Fig_reply_1, fig.width=8.8*inch, fig.height = 8*inch
+
+gr = 
+ggplot(a, aes(x= as.factor(n_syll), y = path_length)) +  
+    geom_boxplot(width=0.2, position = position_nudge(-0.1), outliers = FALSE) +
+     geom_dotplot(binaxis = "y", width = 0.2, position = position_nudge(x = 0.1), binwidth = 0.6, fill = point_fill, col = point_out, alpha = 0.8) + 
+     labs(y ='Path length' , x ='Syllables per song [count]')+
+     scale_y_continuous(lim = c(0,80), expand = c(0,0)) + 
+     theme_bw()
+ggsave(here::here("Output/rev_Reply_2.png"), gr, width = 8.5, height = 8.25, unit = "cm")
+gr
+
+#' <a name="R_F1">
+#' **Responses Figure 1</a> | Path length as a function of syllable count.** Points represent song path-length for each of the 31 males and 20 iterations (n = 620). Boxplots depict median (horizontal line inside the box), the 25th and 75th percentiles (box) ± 1.5 times the interquartile range or the minimum/maximum value, whichever is smaller (bars).

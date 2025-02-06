@@ -241,7 +241,7 @@ m_out = function(model = m, name = "define",
         return(x)
       } 
 #' ## Point 1 - statistical artifact  
-#+ F1, width = inch*11*2, height = inch*18    
+#+ F_1, width = inch*11*2, height = inch*22    
 # Fig 1, top panels - random data
 h = data.table(
 x = rnorm(1000, mean = 35, sd = 4),

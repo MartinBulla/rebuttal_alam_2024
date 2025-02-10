@@ -696,7 +696,7 @@ ggdraw() +
               draw_grob(leg, x = 0.7, y = 0.65, width = 0.3, height = 0.3),
             x = 0, y = 0, width = 1, height = 1)
 
-ggsave("Output/rev_ED_Fig_1_width-55mm.png", width = 8.5, height = 8.5, units = "cm")  # width 8.5*.65
+ggsave("Output/rev_ED_Fig_1_width-55mm.png", ed_f1, width = 8.5, height = 8, units = "cm")  # width 8.5*.65
 ed_f1
 #' 
 #' <a name="ED_1">
@@ -840,7 +840,7 @@ ggplot() +
         panel.grid.major = element_blank(),  # Remove major grid lines
         panel.grid.minor = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
-ggsave(here::here("Output/rev_Fig_3_width-52mm.png"), f3, width = 8.5, height = 7.4*8.5/8, unit = "cm")
+ggsave(here::here("Output/rev_Fig_3_width-55mm.png"), f3, width = 8.5, height = 8, unit = "cm")#7.4*8.5/8, 
 
 f3
 

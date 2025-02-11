@@ -14,7 +14,7 @@
 #+ r setup, include=FALSE 
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = FALSE)
 
-#' ### Introduction
+#' ## Introduction
 #' To facilitate transparency, the following document shows code behind the results of the manuscript. The display items are ordered according to their appearance in the main text. Note that Table R just summarises the model outputs used to extract the repeatability estimates. Additional figures, used in the responses to the reviewers are also shown.
 #' 
 #' The code is displayed upon clicking the "code" icon at the top right, above each display item. 
@@ -26,7 +26,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = FALSE)
 #'  
 #' ***
 #' 
-#' ### Repository: files & folders
+#' ## Repository: files & folders
 #' 
 #' [**Supportin information**, including code](https://martinbulla.github.io/rebuttal_alam_2024/): the current html document with all display items and code.
 #' 
@@ -246,7 +246,7 @@ m_out = function(model = m, name = "define",
 #' ***
 #' 
 #' ## Point 1 - statistical artifact  
-#+ F_1, fig.width = inch*12*2, fig.height = inch*8.5*2
+#+ F_1, fig.width = inch*10.5*2, fig.height = inch*16
 # Fig 1, top panels - random data
 h = data.table(
 x = rnorm(1000, mean = 35, sd = 4),
@@ -808,7 +808,7 @@ gr
 #' ***
 #' 
 #' ## Point 3 - experimental design
-#+ F_3, fig.width=8.5*inch, fig.height = inch*7.4*8.5/8
+#+ F_3, fig.width=8.5*inch, fig.height = inch*8.3
 # load data
 r = fread(here::here('Data/Fig_3c_ED_Fig_6.csv'))
 r[, path_delta:=long-short]

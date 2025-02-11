@@ -89,7 +89,8 @@ nsim = 5000
 g_r_x = 35
 orig_ = '#D43F3AFF'
 furt_ = '#46B8DAFF'#"#357EBDFF"#
-col_p = 'darkgrey'
+col_p1 = 'darkgrey'#'darkgrey'
+col_p = 'grey60'#'darkgrey'
 col_pc = 'grey10'
 point_out = 'grey30'
 point_fill = "#46B8DAFF"
@@ -256,7 +257,7 @@ load(file=here::here('Data/Dat_rnorm.Rdata')) # loads the same sample as in the 
 
 g1=
 ggplot(h, aes(x = x, y = y)) + 
-    geom_point(col = col_p, size = 1.5, alpha = 0.6) +
+    geom_point(col = col_p1, size = 1.5, alpha = 0.6) +
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 52-(52-20)*per_ , hjust = 0.5, cex = 3) + 
     coord_cartesian(xlim = c(20, 50), ylim = c(20, 52)) +
@@ -269,7 +270,7 @@ ggplot(h, aes(x = x, y = y)) +
     #stat_poly_eq() 
 g2=  
 ggplot(h, aes(x = x, y = y-x)) + 
-    geom_point(col = col_p, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +#geom_point(col = col_p) +
+    geom_point(col = col_p1, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +#geom_point(col = col_p) +
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 20-36*per_, hjust = 0.5, cex = 3) +
     coord_cartesian(xlim = c(20, 50), ylim = c(-20, 20)) +
@@ -282,7 +283,7 @@ ggplot(h, aes(x = x, y = y-x)) +
 
 g3=  
 ggplot(h, aes(x = x, y = y+x)) + 
-    geom_point(col = col_p, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +
+    geom_point(col = col_p1, size = 1.5, alpha = 0.6) +#geom_point(fill = col_p, pch = 21, size = 1.5) +
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 90-(90-50)*per_, hjust = 0.5, cex = 3) + 
     coord_cartesian(xlim = c(20, 50), ylim = c(50, 90)) +
@@ -304,9 +305,9 @@ hh[, tutor_minus_pupil:=pupil_path]
 
 gg1=
 ggplot(hh, aes(x =tutor_path, y = pupil_path_full)) + 
-    geom_point(aes(col = as.factor(tutor)), size = 2.2, alpha = 0.6) +
+    geom_point(col = col_p, size = 2.2, alpha = 0.8) +
     scale_color_grafify(palette = 'fishy')+#, ColSeq = FALSE)+
-    annotate("text", x=g_r_x, y=50-(50-20)*per_*4, label= "Color indicates a tutor", cex = 2.75, hjust = 0.5)+ 
+    #annotate("text", x=g_r_x, y=50-(50-20)*per_*4, label= "Color indicates a tutor", cex = 2.75, hjust = 0.5)+ 
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 50-(50-20)*per_, hjust = 0.5, cex = 3)+ 
     coord_cartesian(xlim = c(20, 50), ylim = c(20, 50)) +
@@ -321,7 +322,7 @@ ggplot(hh, aes(x =tutor_path, y = pupil_path_full)) +
 
 gg2=  
 ggplot(hh, aes(x =tutor_path, y = pupil_path_full-tutor_path)) + 
-    geom_point(aes(col = as.factor(tutor)), size = 2.2, alpha = 0.6) +
+    geom_point(col = col_p, size = 2.2, alpha = 0.8) +
     scale_color_grafify(palette = 'fishy')+#, ColSeq = FALSE)+
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 20-(20+20)*per_, hjust = 0.5, cex = 3)+ 
@@ -337,7 +338,7 @@ ggplot(hh, aes(x =tutor_path, y = pupil_path_full-tutor_path)) +
  
 gg3=  
 ggplot(hh, aes(x =tutor_path, y = tutor_path+pupil_path_full)) + 
-    geom_point(aes(col = as.factor(tutor)), size = 2.2, alpha = 0.6) +
+    geom_point(col = col_p, size = 2.2, alpha = 0.8) +
     scale_color_grafify(palette = 'fishy')+#, ColSeq = FALSE)+
     stat_poly_line(se = FALSE, col = col_l) +
     stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = g_r_x, label.y = 90-(90-50)*per_, hjust = 0.5, cex = 3)+ 
@@ -359,7 +360,7 @@ ggplot(hh, aes(x =tutor_path, y = tutor_path+pupil_path_full)) +
 combine_1 =  (g1|g2|g3) & plot_annotation(subtitle = "Random data; n = 1,000") #& theme(plot.title = element_text(hjust = .5))
 combine_2 =  (gg1|gg2|gg3) & plot_annotation(subtitle = "Alam et al. 2024 data; n = 17 pupils and 8 tutors ") #& theme(plot.title = element_text(hjust = .5))
 
-ggsave(here::here('Output/rev_Fig_1_width-143mm.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 11*2, height = 4*2*2, units = 'cm')
+ggsave(here::here('Output/rev_Fig_1_width-137mm.png'), wrap_elements(combine_1) / wrap_elements(combine_2), width = 10.5*2, height = 4*2*2, units = 'cm')
 
 wrap_elements(combine_1) / wrap_elements(combine_2)
 #' <a name="F_1">
@@ -476,31 +477,62 @@ j=4
 wj = w[n_syll%in%j] 
 # create pair dataset (for each UMAP iteration add the path length of the second bird in a pair)
 pj <- wj[, { 
-# generate unique pairs of bird IDs
-bird_pairs <- CJ(bird_a = bird_id, bird_b = bird_id, sorted = TRUE)[bird_a < bird_b]
+  # generate unique pairs of bird IDs
+  bird_pairs <- CJ(bird_a = bird_id, bird_b = bird_id, sorted = TRUE)[bird_a < bird_b]
 
-# merge path lengths for bird_a and bird_b
-bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
-                    by.x = "bird_a", by.y = "bird_id", all.x = TRUE)
-setnames(bird_pairs, "path_length", "path_length_a")
+  # merge path lengths for bird_a and bird_b
+  bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                      by.x = "bird_a", by.y = "bird_id", all.x = TRUE)
+  setnames(bird_pairs, "path_length", "path_length_a")
 
-bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
-                    by.x = "bird_b", by.y = "bird_id", all.x = TRUE)
-setnames(bird_pairs, "path_length", "path_length_b")
+  bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                      by.x = "bird_b", by.y = "bird_id", all.x = TRUE)
+  setnames(bird_pairs, "path_length", "path_length_b")
 
-bird_pairs
+  bird_pairs
 }, by = iteration]
 
 pj[, path_length_diff := path_length_a-path_length_b]
 pj[, delta := abs(path_length_diff)]
 pj[, pr := paste(bird_a,bird_b)]
 
+# create datasets with one iteration as a reference
+bl = list() # list for the figure data
+bbl = list() # list to estimate % of flipping
+
+for(i in unique(pj$iteration)){ #pj data.table comes from the sessions above
+  #i = 3
+  xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
+  xi[pair==delta,adjust:= 1]
+  xi[is.na(adjust), adjust :=-1]
+  pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
+  pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
+  pxi[, ref_iteration :=  i]
+
+  # create panel titles and data to estimate % of flipping
+  pxip = pxi[!iteration%in%i, if(adjust[1]==-1){sum(path_length_diff > 0)}else{sum(path_length_diff <0)}, by = list(pr,pair)] %>% setnames(old = 'V1', new = 'flip')
+  pxip[, flip_per:=paste0(round(100*flip/(length(unique(pxi$iteration))-1)),'%')]  #paste0(round(100*swap/20), %)]  
+  pxip[, flip_pr:=round(100*flip/(length(unique(pxi$iteration))-1))]
+  pxip[, ref_iteration :=  i]
+
+  pxi[, panel_titles := paste0("iteration: ", i, "; reclassified: ", paste0(round(mean(pxip$flip_pr)),'%'))]
+
+  bl[[i+1]]= pxi
+  bbl[[i+1]] = pxip
+}
+
+# combine (the data are then also used to estimate main text results and create ED_Fig. 2)
+b = do.call(rbind,bl)
+bb = do.call(rbind,bbl)
+
+b[, panel_titles := factor(panel_titles, levels = unique(b[order(ref_iteration), panel_titles]))] # define plotting order
+
+# estimate the flipping %
+mean(bb$flip_pr)
+
+# plot
 i = 3 # use the most variable iteration
-xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
-xi[pair==delta,adjust:= 1]
-xi[is.na(adjust), adjust :=-1]
-pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
-pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
+pxi = b[ref_iteration%in%i] 
 
 f2 =
 ggplot(pxi, aes(x = pair, y = delta)) + 
@@ -530,7 +562,7 @@ ggsave(here::here("Output/rev_Fig_2_width-110mm.png"), f2, width = 17, height = 
 f2
 
 #' <a name="F_2">
-#' **Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations and illustrate how often the long-path song is reclassified as short-path in another iteration. Depicted are data for the reference iteration with the largest variation in path-length differences, but other iterations provide similar results ([Extended Data Fig. 2](#ED_F2)). 
+#' **Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations. The grey area highlights the `r round(bb[ref_iteration%in%i, mean(flip_pr)])`% of cases where long-path song is reclassified as short-path in another iteration. Depicted are data for the reference iteration with the largest variation in path-length differences, but other iterations provide similar results (mean = `r round(bb[, mean(flip_pr)])`% of reclasifications; [Extended Data Fig. 2](#ED_F2)). 
 
 #+ ED_f1, fig.width=8.5*inch,fig.height=8.5*inch
 # load data
@@ -562,12 +594,12 @@ pp = foreach(i = unique(wb$iteration), .combine = rbind) %do% {
         wij = wij[order(path_length)]
         pair = data.table(
             pair = c('#1',"#2","#3"),
-            bird_a = c(wij$bird_id[2], wij$bird_id[5], wij$bird_id[6]),
-            bird_b = c(wij$bird_id[4], wij$bird_id[1], wij$bird_id[3]),
-            delta = c(wij$path_length[4]-wij$path_length[2],
-           wij$path_length[6]- wij$path_length[1],wij$path_length[5]- wij$path_length[3]
+            bird_a = c(wij$bird_id[2], wij$bird_id[1], wij$bird_id[3]),
+            bird_b = c(wij$bird_id[5], wij$bird_id[6], wij$bird_id[4]),
+            delta = c(wij$path_length[5]-wij$path_length[2],
+           wij$path_length[6]- wij$path_length[1],wij$path_length[4]- wij$path_length[3]
             ),
-            delta_blub = c(wij$blup[4]-wij$blup[2], wij$blup[6] - wij$blup[1],wij$blup[5] - wij$blup[3]
+            delta_blub = c(wij$blup[5]-wij$blup[2], wij$blup[6] - wij$blup[1],wij$blup[4] - wij$blup[3]
             ),
         set = j
         )
@@ -605,6 +637,8 @@ newD$upr_0 = newD$upr + force0
 # prepare dataset for Alam et al's pair scenario
 pa =newD[delta %in% c(5, 15, 30)]
 pa[, pair:=c('Pair #3', 'Pair #1', 'Pair #2')]
+pa[, pred_text:=pred_0] # placement of labels
+pa[pair %in% 'Pair #3', pred_text := pred_0 + 0.05]
 
 # prepare mean values for plotting
 pp[, delta_bin := cut(delta, 
@@ -668,9 +702,9 @@ ggplot() +
   geom_line(data = newD,aes(x = delta, y = pred_0), col = orig_) +
   # Alam et al's pairs highlighted 
   geom_point(data = pa, aes(x = delta, y = pred_0), pch = 21, fill = "red")+
-   # Add labels above the three points
-  geom_text(data = pa, aes(x = delta, y = pred_0, label = round(pred_0, 2)), vjust = -1, hjust = 0, color = "grey20", fontface = "bold", size = 1/scale_size) +  
-  geom_text(data = pa, aes(x = delta, y = pred_0, label = pair), vjust = -2.5, hjust = 0, color = "grey20", size = 1/scale_size) +  
+   # Add labels above the three points TODO:move Pair #3 higher
+  geom_text(data = pa, aes(x = delta, y = pred_text, label = round(pred_0, 2)), vjust = -1, hjust = 0, color = "grey20", fontface = "bold", size = 1/scale_size) +  
+  geom_text(data = pa, aes(x = delta, y = pred_text, label = pair), vjust = -2.5, hjust = 0, color = "grey20", size = 1/scale_size) +  
   scale_size_area(
     limits = c(0, max(summary_stats$n, na.rm = TRUE)), 
     max_size = 10, 
@@ -697,43 +731,14 @@ ggdraw() +
               draw_grob(leg, x = 0.7, y = 0.65, width = 0.3, height = 0.3),
             x = 0, y = 0, width = 1, height = 1)
 
-ggsave("Output/rev_ED_Fig_1_width-55mm.png", ed_f1, width = 8.5, height = 8, units = "cm")  # width 8.5*.65
+ggsave(here::here("Output/rev_ED_Fig_1_width-55mm_v2.png"), ed_f1, width = 8.5, height = 8, units = "cm")  # width 8.5*.65
 ed_f1
 #' 
 #' <a name="ED_1">
-#' **Extended Data Figure 1</a> | Probability of incorrect long-path classification within stimulus pairs as a function of their path-length difference in a single UMAP iteration.** Density plots at the top and bottom indicate the distribution of the data. Grey points represent means for ten equally spaced x-axis intervals. The red line represents the predicted probability based on the joint posterior distribution of 5,000 simulated values from a logistic regression using the `sim` function from the `arm` [R-package](https://cran.r-project.org/package=arm). The three red dots, along with their values, indicate the probability of incorrect assignment for the three stimulus pairs used by Alam et al. The data for this figure were obtained as follows. We used Alam et al.’s spectrograms on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). Within each iteration, for each male we calculated the shortest path length between syllable clusters. To control for variation due to syllable count, we selected `r length(unique(w$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count). We fitted an intercept-only mixed-effects model with bird identity as a random intercept and using the `coef()` function in R extracted an unbiased estimate of the "true inherent path length" for each male, approximating an average over an infinite number of iterations. To simulate Alam et al's playback scenario of three stimulus pair contrasting presumably "long path" against "short path" songs, for each of the 20 iterations, we created all unique subsets of six males (n = `r nrow(samples)`), each with a slightly different set of six males. Within each subset (following Alam et al's Extended Data Fig. 5d), songs were sorted by their path length, and three song pairs created: Pair #1 contrasts the 2nd- and 4th-ranked song, Pair #2 the 1st- and 6th-ranked song, and Pair #3 the 3rd- and 5th-ranked song. This process resulted in `r nrow(pp)` comparisons (three pairs per subset across `r nrow(samples)` subsets and 20 iterations). For each pair, we noted whether the song appearing as "long-path" in a single iteration was actually "short-path" based on its true inherent value. A logistic regression was fitted to estimate how the probability of incorrect classification changes with the path-length difference in a given iteration. Note that the probability that all three stimulus pairs were correctly classified is only `r round(prod(1-round(pa$pred_0, 2))*100)`% (the product of the individual correct-classification probabilities).
+#' **Extended Data Figure 1</a> | Probability of incorrect long-path classification within stimulus pairs as a function of their path-length difference in a single UMAP iteration.** Density plots at the top and bottom indicate the distribution of the data. Grey points represent means for ten equally spaced x-axis intervals. The red line represents the predicted probability based on the joint posterior distribution of 5,000 simulated values from a logistic regression using the `sim` function from the `arm` [R-package](https://cran.r-project.org/package=arm). The three red dots, along with their values, indicate the probability of incorrect assignment for the three stimulus pairs used by Alam et al. The data for this figure were obtained as follows. We used Alam et al.’s spectrograms on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). Within each iteration, for each male we calculated the shortest path length between syllable clusters. To control for variation due to syllable count, we selected `r length(unique(w$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count). We fitted an intercept-only mixed-effects model with bird identity as a random intercept and using the `coef()` function in R extracted an unbiased estimate of the "true inherent path length" for each male, approximating an average over an infinite number of iterations. To simulate Alam et al's playback scenario of three stimulus pair contrasting presumably "long path" against "short path" songs, for each of the 20 iterations, we created all unique subsets of six males (n = `r nrow(samples)`), each with a slightly different set of six males. Within each subset (following Alam et al's Extended Data Fig. 5d), songs were sorted by their path length, and three song pairs created: Pair #1 contrasts the 2nd- and 5th-ranked song, Pair #2 the 1st- and 6th-ranked song, and Pair #3 the 3rd- and 4th-ranked song. This process resulted in `r nrow(pp)` comparisons (three pairs per subset across `r nrow(samples)` subsets and 20 iterations). For each pair, we noted whether the song appearing as "long-path" in a single iteration was actually "short-path" based on its true inherent value. A logistic regression was fitted to estimate how the probability of incorrect classification changes with the path-length difference in a given iteration. Note that the probability that all three stimulus pairs were correctly classified is only `r round(prod(1-round(pa$pred_0, 2))*100)`% (the product of the individual correct-classification probabilities).
 
 #+ ED_F2, fig.width=20*inch, fig.height = inch*18
-# create datasets with one iteration as a reference
-
-bl = list() # list for the figure data
-bbl = list() # list to estimate % of flipping
-
-for(i in unique(pj$iteration)){ #pj data.table comes from the sessions above
-  #i = 3
-  xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
-  xi[pair==delta,adjust:= 1]
-  xi[is.na(adjust), adjust :=-1]
-  pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
-  pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
-  pxi[, ref_iteration :=  i]
-
-  # create panel titles and data to estimate % of flipping
-  pxip = pxi[!iteration%in%i, if(adjust[1]==-1){sum(path_length_diff > 0)}else{sum(path_length_diff <0)}, by = list(pr,pair)] %>% setnames(old = 'V1', new = 'flip')
-  pxip[, flip_per:=paste0(round(100*flip/(length(unique(pxi$iteration))-1)),'%')]  #paste0(round(100*swap/20), %)]  
-  pxip[, flip_pr:=round(100*flip/(length(unique(pxi$iteration))-1))]
-
-  pxi[, panel_titles := paste0("iteration: ", i, "; reclassified: ", paste0(round(mean(pxip$flip_pr)),'%'))]
-
-  bl[[i+1]]= pxi
-  bbl[[i+1]] = pxip
-}
-
-b = do.call(rbind,bl)
-bb = do.call(rbind,bbl)
-
-b[, panel_titles := factor(panel_titles, levels = unique(b[order(ref_iteration), panel_titles]))] # define plotting order
-
+# uses data prepared in Figure 2 script above
 # plot
 ed_f2 =
 ggplot(b, aes(x = pair, y = delta)) + 
@@ -814,6 +819,7 @@ rx = r[, mean(long_vs_baseline), by = path_delta] %>% setnames('V1', 'mean')
 
 f3=
 ggplot() + 
+    geom_hline(yintercept = 0, lty = 3, col = "grey80")+
     geom_point(aes(x = path_delta, y = long_vs_baseline, col = side_bias), data = r, cex = 2, alpha = 0.6) +
     #stat_poly_line(se = FALSE, col = col_l) +
     geom_point(aes(x = path_delta, y = mean), data = rx, pch = 23, cex = 2, fill = 'red', alpha = 0.6) +
@@ -824,23 +830,23 @@ ggplot() +
 
    # stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = 0.6-(0.6+.03)*per_*1.3,hjust = 0.5, vjust = 0, cex = 3) +
 
-    coord_cartesian(xlim = c(0, 35), ylim = c(-.03, .6)) +
+    coord_cartesian(xlim = c(0, 35), ylim = c(-.09, .6)) +
     scale_x_continuous(breaks = seq(0,30, by=10), expand = c(0,0))+
     scale_y_continuous(breaks = seq(0,.6, by=.2), expand = c(0,0))+
     scale_color_manual(guide = "none", values = col_) +
     
-    annotate("text", x = 15, y = 0, label = "Pair #1", size =3) + 
-    annotate("text", x = 30.29, y = 0, label = "Pair #2", size =3) + 
-    annotate("text", x = 5.72, y = 0, label = "Pair #3", size =3) + 
+    annotate("text", x = 15, y = -0.06, label = "Pair #1", size =3) + 
+    annotate("text", x = 30.29, y = -0.06, label = "Pair #2", size =3) + 
+    annotate("text", x = 5.72, y = -0.06, label = "Pair #3", size =3) + 
     #scale_shape_manual(guide = "none", values = c(21, 22, 23)) +
     #guides(fill = guide_legend(override.aes=list(shape=21))) +
-    labs(x = 'Path-length difference of a pair\n[long-path minus short-path song]', y = 'Change in proportion of time\nwith long-path song [trial - baseline]')+
+    labs(x = 'Path-length difference of a pair\n[long-path minus short-path song]\n', y = 'Change in proportion of time\nwith long-path song\n[trial minus baseline]')+
     theme_bw()+
     theme(axis.ticks = element_blank(),
         panel.grid.major = element_blank(),  # Remove major grid lines
         panel.grid.minor = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
-ggsave(here::here("Output/rev_Fig_3_width-55mm_v2.png"), f3, width = 8.5, height = 8, unit = "cm")#7.4*8.5/8, 
+ggsave(here::here("Output/rev_Fig_3_width-55mm_v2.png"), f3, width = 8.5, height = 8.3, unit = "cm")#7.4*8.5/8, 
 
 f3
 

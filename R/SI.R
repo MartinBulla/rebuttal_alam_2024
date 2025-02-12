@@ -527,8 +527,7 @@ bb = do.call(rbind,bbl)
 
 b[, panel_titles := factor(panel_titles, levels = unique(b[order(ref_iteration), panel_titles]))] # define plotting order
 
-# estimate the flipping %
-mean(bb$flip_pr)
+# estimate the flipping % mean(bb$flip_pr)
 
 # plot
 i = 3 # use the most variable iteration
@@ -786,7 +785,117 @@ ggsave(here::here(paste0("Output/rev_ED_Fig_2_width-130mm.png")), ed_f2_gg, widt
 grid.draw(ed_f2_gg)
 
 #' <a name="ED_F2">
-#' **Extended Data Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. Each panel represents a different latent space iteration serving as the reference. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations and illustrate how often the long-path song is reclassified as short-path in another iteration. The panel titles highlight the percentage of reclassifications, which was overl `r round(mean(bb$flip_pr))`%.  
+#' **Extended Data Figure 2</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. Each panel represents a different latent space iteration serving as the reference. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count, we selected `r length(unique(wj$bird_id))` birds with four-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations. The grey area illustrates how often the long-path song is reclassified as short-path in another iteration. The panel titles highlight the percentage of reclassifications, which was overall `r round(mean(bb$flip_pr))`%.  
+
+#'
+#+ S_F1, fig.width=20*inch, fig.height = inch*18
+# prepare data
+w = fread(here::here('Data/Dat_path_length.csv'), header = T) # the dataset was created using Alam et al's Fig 2c data on 31 birds available from https://doi.org/10.18738/T8/WBQM4I/Q92O9A and using their procedure to generated 20 UMAPs - see https://github.com/ymir-k/UMAP_test/tree/main/AlamTests/3-RseedTest
+setnames(w, c('kdistance'), c('path_length'))#w[, path_length := kdistance]
+# selcet 4 syllable males
+j=5
+wj = w[n_syll%in%j] 
+# create pair dataset (for each UMAP iteration add the path length of the second bird in a pair)
+pj <- wj[, { 
+  # generate unique pairs of bird IDs
+  bird_pairs <- CJ(bird_a = bird_id, bird_b = bird_id, sorted = TRUE)[bird_a < bird_b]
+
+  # merge path lengths for bird_a and bird_b
+  bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                      by.x = "bird_a", by.y = "bird_id", all.x = TRUE)
+  setnames(bird_pairs, "path_length", "path_length_a")
+
+  bird_pairs <- merge(bird_pairs, .SD[, .(bird_id, path_length)], 
+                      by.x = "bird_b", by.y = "bird_id", all.x = TRUE)
+  setnames(bird_pairs, "path_length", "path_length_b")
+
+  bird_pairs
+}, by = iteration]
+
+pj[, path_length_diff := path_length_a-path_length_b]
+pj[, delta := abs(path_length_diff)]
+pj[, pr := paste(bird_a,bird_b)]
+
+# create datasets with one iteration as a reference
+bl5 = list() # list for the figure data
+bbl5 = list() # list to estimate % of flipping
+
+for(i in unique(pj$iteration)){ #pj data.table comes from the sessions above
+  #i = 3
+  xi = data.table(pr = pj[iteration==i, pr], pair = pj[iteration==i, round(abs(path_length_diff),4)], delta = pj[iteration==i, round(path_length_diff,4)])
+  xi[pair==delta,adjust:= 1]
+  xi[is.na(adjust), adjust :=-1]
+  pxi = merge(pj,xi[,.(pr, pair,adjust)],all.x=TRUE)
+  pxi[, delta:=path_length_diff*adjust ]# for plotting make all starting pair values from umap 5 positive
+  pxi[, ref_iteration :=  i]
+
+  # create panel titles and data to estimate % of flipping
+  pxip = pxi[!iteration%in%i, if(adjust[1]==-1){sum(path_length_diff > 0)}else{sum(path_length_diff <0)}, by = list(pr,pair)] %>% setnames(old = 'V1', new = 'flip')
+  pxip[, flip_per:=paste0(round(100*flip/(length(unique(pxi$iteration))-1)),'%')]  #paste0(round(100*swap/20), %)]  
+  pxip[, flip_pr:=round(100*flip/(length(unique(pxi$iteration))-1))]
+  pxip[, ref_iteration :=  i]
+
+  pxi[, panel_titles := paste0("iteration: ", i, "; reclassified: ", paste0(round(mean(pxip$flip_pr)),'%'))]
+
+  bl5[[i+1]]= pxi
+  bbl5[[i+1]] = pxip
+}
+
+# combine (the data are then also used to estimate main text results and create ED_Fig. 2)
+b5 = do.call(rbind,bl5)
+bb5 = do.call(rbind,bbl5)
+
+b5[, panel_titles := factor(panel_titles, levels = unique(b5[order(ref_iteration), panel_titles]))] # define plotting order
+
+
+# plot
+s_f1 =
+ggplot(b5, aes(x = pair, y = delta)) + 
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax =0,fill = 'grey80',inherit.aes = FALSE)+
+    geom_rect(xmin = -Inf, xmax = Inf, ymin = 0, ymax = Inf,fill = 'white',inherit.aes = FALSE)+
+    geom_vline(aes(xintercept = pair), col = 'grey75', lwd = 0.25) +
+    geom_hline(yintercept = 0, lty = 3, col = 'grey45', lwd = 0.25) +
+    geom_point(alpha = 0.5, pch = 21, size = 2, fill =furt_) + 
+    geom_point(data = b5[iteration==ref_iteration], aes(x = pair, y = delta), fill = orig_, pch = 21, size = 2) +
+    facet_wrap(~panel_titles, nrow = 5, ncol = 4) + 
+    labs(x = 'Initial path-length difference of a pair\n[indicated also by red dots]', y = 'Path-length difference of a pair\nfor each latent space iteration')+ #subtitle = paste("Iteration #:",i))+
+    #scale_y_continuous(lim = c(-30.2, 30.2), breaks=seq(-30,30, by = 10))+
+    scale_x_continuous(lim = c(-1,50), ,expand = c(0,0))+ #breaks = seq(0,50,by=10)
+    scale_y_continuous(lim = c(-50,50),  expand = c(0,0))+ #breaks = seq(-50,50,by=10),
+    #scale_fill_manual(values = col_3) + 
+    geom_text(
+      data = b5[panel_titles == unique(b5$panel_titles)[1]][1,],  # Select first panel only
+      aes(x = 40, y = -25, label = "reclassified"),
+      size = 7*scale_size
+    ) +
+    geom_text(
+      data = b5[panel_titles == unique(b5$panel_titles)[1]][1,],  # Select first panel only
+      aes(x = 40, y = 25, label = "hold"),
+      size = 7*scale_size
+    ) +
+    theme_bw() +
+    theme(legend.position="none", 
+    strip.background = element_blank(),
+    axis.ticks = element_blank()
+    )
+
+# remove lables
+s_f1_g <- ggplotGrob(s_f1) # gg$layout$name
+gtable_filter_remove <- function (x, name, trim = TRUE){
+  matches <- !(x$layout$name %in% name)
+  x$layout <- x$layout[matches, , drop = FALSE]
+  x$grobs <- x$grobs[matches]
+  if (trim) 
+    x <- gtable_trim(x)
+  x
+}
+s_f1_gg <- gtable_filter_remove(s_f1_g, name = c("axis-b-2-5", "axis-b-4-5"), trim = FALSE) # paste0("axis-b-", c(2, 4), "-9")
+ggsave(here::here(paste0("Output/rev_s_f1_gg_width-130mm.png")), s_f1_gg, width = 20, height = 18, unit = "cm") #width =  20*0.65
+ 
+grid.draw(s_f1_gg)
+
+#' <a name="S_F1">
+#' **Supporting Figure 1</a> | Inconsistent long-path classification within song pairs across latent (UMAP) space iterations using 5-syllable songs.** The x-axis represents the initial difference in path lengths between two songs of a pair (also highlighted by red points), calculated from a single latent space iteration. The y-axis shows all within-pair path-length differences across 20 latent space iterations. Grey vertical lines highlight individual pairs. Each panel represents a different latent space iteration serving as the reference. We used Alam et al.’s data on 31 tutored birds from Fig. 2c[3](https://doi.org/10.18738/T8/WBQM4I/Q92O9A) and generated 20 latent space iterations[4](https://github.com/MartinBulla/rebuttal_alam_2024). To control for variation due to syllable count and mimick Alam et al.'s 5-syllable song stimuli, we selected `r length(unique(wj$bird_id))` birds with five-syllable songs (the largest sample size for any syllable count), created `r length(unique(pj$pr))` song pairs, and calculated within-pair path-length differences. A single latent space iteration served as the reference (“initial difference” in red), just like Alam et al. used only one iteration to define which song in a stimulus pair had the longer path. The blue points show the within-pair path-length differences for the remaining 19 iterations. The grey area illustrates how often the long-path song is reclassified as short-path in another iteration. The panel titles highlight the percentage of reclassifications, which was overall `r round(mean(bb5$flip_pr))`%.  
 
 #'
 #' ### Output used in the replies to the reviewer comments
@@ -822,11 +931,13 @@ ggplot() +
     geom_hline(yintercept = 0, lty = 3, col = "grey80")+
     geom_point(aes(x = path_delta, y = long_vs_baseline, col = side_bias), data = r, cex = 2, alpha = 0.6) +
     #stat_poly_line(se = FALSE, col = col_l) +
-    geom_point(aes(x = path_delta, y = mean), data = rx, pch = 23, cex = 2, fill = 'red', alpha = 0.6) +
-
-    annotate("text", x = 10, y = 0.525, label = "Long-path song played in:", size =2.75, hjust = 0) + 
-    annotate("text", x = 13, y = 0.49, label = "preferred arm", size =2.75, col = col_[2], hjust = 0) + 
-    annotate("text", x = 13, y = 0.455, label = "non-preferred arm", size =2.75, col = col_[1], hjust = 0) + 
+    geom_point(aes(x = path_delta, y = mean), data = rx, pch = 23, cex = 2, fill = 'red') +
+    #geom_point(aes(x = path_delta, y = mean), data = rx, pch = 21, cex = 1, fill = 'red', alpha = 0.6) +
+    
+    annotate("text", x = 17, y = 0.26, label = "Means", size =2.75, hjust = 0, col = 'red') + 
+    annotate("text", x = 10, y = 0.55, label = "Long-path song played in:", size =2.75, hjust = 0) + 
+    annotate("text", x = 13, y = 0.515, label = "preferred arm", size =2.75, col = col_[2], hjust = 0) + 
+    annotate("text", x = 13, y = 0.48, label = "non-preferred arm", size =2.75, col = col_[1], hjust = 0) + 
 
    # stat_cor(cor.coef.name = "r", aes(label = after_stat(r.label)),  col = col_R, r.accuracy = 0.1, label.x = 17.5, label.y = 0.6-(0.6+.03)*per_*1.3,hjust = 0.5, vjust = 0, cex = 3) +
 
@@ -846,7 +957,7 @@ ggplot() +
         panel.grid.major = element_blank(),  # Remove major grid lines
         panel.grid.minor = element_blank())#,text = element_text(family = "Arial Unicode MS"))
 
-ggsave(here::here("Output/rev_Fig_3_width-55mm_v2.png"), f3, width = 8.5, height = 8.3, unit = "cm")#7.4*8.5/8, 
+ggsave(here::here("Output/rev_Fig_3_width-55mm_v3.png"), f3, width = 8.5, height = 8.3, unit = "cm")#7.4*8.5/8, 
 
 f3
 

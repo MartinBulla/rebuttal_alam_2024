@@ -7,7 +7,7 @@ Questions about the outpus can be directed to bulla.mar@gmail.com and  about the
 ***
 
 ### Repository: files & folders
-[**Supportin information**, including code](https://martinbulla.github.io/rebuttal_alam_2024/): the current html document with all display items and code.
+[**Supporting information**, including code](https://martinbulla.github.io/rebuttal_alam_2024/): the html document with all display items and results, along with directly visible code.
 
 [Data](Data/):
 - [Fig_4c.csv](Data/Fig_4c.csv): source data provided by [Alam et al. (2024, *Nature*)](https://doi.org/10.1038/s41586-024-07207-4); columns: *tutor* - unique tutor ID, *pupil* - unique pupil ID for the given tutor, *tutor_path* - song path length of the tutor, *pupil_path* - song path length of the pupil

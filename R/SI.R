@@ -17,7 +17,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = FALSE)
 #' ## Introduction
 #' To facilitate transparency, the following document shows code behind the results of the manuscript. The display items are ordered according to their appearance in the main text. Note that Table R just summarises the model outputs used to extract the repeatability estimates. Additional figures, used in the responses to the reviewers are also shown.
 #' 
-#' The code is displayed upon clicking the "code" icon at the top right, above each display item. 
+#' The code is displayed upon clicking the "show" icon at the top right, above each display item. 
 #' 
 #' When using this content **PLEASE CITE** the [preprint](https://ecoevorxiv.org/repository/view/7530/) and this repository: Bulla & Sankar, 2025. Supporting information for 'No support for honest signalling of male quality in zebra finch song'. *GitHub* https://github.com/MartinBulla/rebuttal_alam_2024.
 #' 
@@ -543,7 +543,7 @@ ggplot(pxi, aes(x = pair, y = delta)) +
     geom_point(data = pxi[iteration==i], aes(x = pair, y = delta), fill = orig_, pch = 21, size = 2) +
     #geom_text(data = wxp, aes(x = pair, y = -45, label = swap_per), size = 0.8/scale_size, angle = 90, hjust = 0)+
     annotate("text", x = 38.5, y = 39, label = "Initial difference", col = orig_, size = 0.9/scale_size, hjust = 1) + 
-    annotate("text", x = 39.75, y = 19, label = "Further differences", col = furt_, size = 0.9/scale_size, hjust = 1) + 
+    #annotate("text", x = 39.75, y = 19, label = "Further differences", col = furt_, size = 0.9/scale_size, hjust = 1) + 
     annotate("text", x = 48, y = 0, label = "Initial long song", size = 1/scale_size, angle = 90) + 
     annotate("text", x = 49, y = 25, label = "remained the long one", size = 1/scale_size, angle = 90) + 
     annotate("text", x = 49, y = -25, label = "became the short one", size = 1/scale_size, angle = 90) + 
@@ -890,7 +890,7 @@ gtable_filter_remove <- function (x, name, trim = TRUE){
   x
 }
 s_f1_gg <- gtable_filter_remove(s_f1_g, name = c("axis-b-2-5", "axis-b-4-5"), trim = FALSE) # paste0("axis-b-", c(2, 4), "-9")
-ggsave(here::here(paste0("Output/rev_s_f1_gg_width-130mm.png")), s_f1_gg, width = 20, height = 18, unit = "cm") #width =  20*0.65
+ggsave(here::here(paste0("Output/rev_S_Fig_1_width-130mm.png")), s_f1_gg, width = 20, height = 18, unit = "cm") #width =  20*0.65
  
 grid.draw(s_f1_gg)
 
